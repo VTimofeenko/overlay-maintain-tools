@@ -1,8 +1,12 @@
-from typing import List, Union
+from typing import List, Union, Tuple, Dict
+from collections.abc import Collection
 import re
 import requests
 from enum import Enum
-from operator import methodcaller
+from operator import methodcaller, attrgetter
+from toolz import complement, groupby, compose
+from toolz.curried import get, pluck
+from multiprocessing import Pool
 
 from overlay_maintain_tools.pkgs_cache import Package, Remote
 
@@ -49,12 +53,45 @@ version_getter = {
 
 def get_latest_version_from_remote(r: Remote) -> str:
     version = version_getter[r.type](r.target)
+    if version is None:
+        version = ""
     return _cleanup_version(version)
 
 
-def process_list(packages_stash: List[Package]):
-    # versions list
+def process_remotes_list(
+    remotes: Tuple[Remote, ...], worker_count: int
+) -> Tuple[Tuple[Remote, str], ...]:
+    """Retrieves the versions from remotes"""
+    p = Pool(worker_count)
+    remote_versions = p.map(get_latest_version_from_remote, remotes)
+    return tuple(zip(remotes, remote_versions))
+
+
+def compare_local_remote_versions(
+    local_versions: Tuple[str, ...], remotes: Tuple[Remote, ...], worker_count: int
+) -> Tuple[Tuple[Remote, str]]:
+    """Returns the list of remotes with versions greater than the maximum local one"""
+    max_version_local = max(set(filter(complement(_is_live_version), local_versions)))
+    return tuple(
+        filter(
+            lambda _: _[1] > max_version_local,
+            process_remotes_list(remotes, worker_count=worker_count),
+        )
+    )
+
+
+def process_pkgs(
+    packages_stash: List[Package], worker_count: int = 8
+) -> Dict[str, Tuple[Tuple[Remote, str], ...]]:
+    """Processes a list of packages and returns a list of remotes where the version is greater than the one in
+    overlay"""
+    result = dict()
     for pkg in packages_stash:
-        versions_local = filter(_is_live_version, pkg.versions)
-        versions_in_remotes = map(get_latest_version_from_remote, pkg.remotes)
-    pass
+        result.update(
+            {
+                pkg.atomname: compose(tuple, compare_local_remote_versions)(
+                    pkg.versions, pkg.remotes, worker_count
+                )
+            }
+        )
+    return result

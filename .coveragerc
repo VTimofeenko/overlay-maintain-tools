@@ -1,0 +1,2 @@
+[run]
+omit = overlay_maintain_tools/__main__.py
