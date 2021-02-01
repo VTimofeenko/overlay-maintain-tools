@@ -38,14 +38,18 @@ def mkreadme(
             dir_okay=True,
             exists=True
         ),
-        readme: Path = typer.Option(
+        readme: Optional[Path] = typer.Option(
             None,
             "--readme-output",
-            help="Where to save the resulting README"
+            help="Where to save the resulting README. If not supplied - print to stdout."
         )
 ):
     template = setup_template(skeleton_template_name=str(skeleton_file), search_path=str(template_dir))
-    readme.write_text(render_template(packages_stash=state.pkg_cache, template=template))
+    text = render_template(packages_stash=state.pkg_cache, template=template)
+    if readme.is_file():
+        readme.write_text(text)
+    else:
+        print_stdout(text)
 
 
 # noinspection PyUnusedLocal
@@ -58,8 +62,6 @@ def main(
     overlay_dir: Optional[Path] = typer.Option(
         '.', "--overlay-dir", help="Specify location for overlay."
     ),
-    # worker_count: int = typer.Option(..., "--worker-count", default=8,
-    #                                                help="Number of workers to create packages cache")
     worker_count: int = typer.Option(8, min=1, help="Number of workers for creating package cache.")
 ):
     if overlay_dir != '.':
