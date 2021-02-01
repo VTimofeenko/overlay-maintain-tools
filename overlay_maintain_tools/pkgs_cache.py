@@ -43,4 +43,3 @@ def build_pkgs_cache(overlay_dir: Path, worker_count=8,) -> List[Package]:
     pkg_subdirs = overlay_dir.glob("*/*")
     p = Pool(worker_count)
     return list(compact(p.map(process_directory, pkg_subdirs)))
-
