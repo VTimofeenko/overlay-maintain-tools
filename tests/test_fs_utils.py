@@ -1,11 +1,10 @@
 from overlay_maintain_tools.fs_utils import *
+from tests.utils import create_ebuild
 from pathlib import Path
 import pytest
 
 overlay_dir = Path("/var/db/repos/gentoo")
-test_atom = 'sys-apps/portage'
-tmp_repo = 'repo'
-tmp_package = 'app-misc/pkgname'
+test_atom = "sys-apps/portage"
 test_metadata = """<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
 <pkgmetadata>
@@ -32,25 +31,12 @@ def test_get_atomname():
 
 
 def test_get_pkg_name_from_atom():
-    assert get_pkg_name_from_atom(test_atom) == 'portage'
+    assert get_pkg_name_from_atom(test_atom) == "portage"
 
 
 def test_contains_ebuild_files():
     assert contains_ebuild_files(overlay_dir / test_atom)
-    assert not contains_ebuild_files(overlay_dir / 'profiles')
-
-
-@pytest.fixture(scope="function")
-def create_pkgdir(tmp_path):
-    pkg_dir = tmp_path / f"{tmp_repo}/{tmp_package}"
-    pkg_dir.mkdir(parents=True)
-    return pkg_dir
-
-
-def create_ebuild(pkgdir: Path, version: str = '1') -> Path:
-    filename = (pkgdir / f'pkgname-{version}.ebuild')
-    filename.touch()
-    return filename
+    assert not contains_ebuild_files(overlay_dir / "profiles")
 
 
 def test_get_versions(tmp_path, create_pkgdir):
@@ -61,14 +47,14 @@ def test_get_versions(tmp_path, create_pkgdir):
     assert sorted(get_versions(create_pkgdir)) == sorted(tested_versions)
 
 
-@pytest.mark.parametrize('ver', ["1", "1-r1"])
+@pytest.mark.parametrize("ver", ["1", "1-r1"])
 def test_get_version_from_file(create_pkgdir, ver):
     filename = create_ebuild(create_pkgdir, ver)
     assert get_version_from_file(filename) == "1"
 
 
 def test_find_ebuilds_in_dir(create_pkgdir):
-    filename = create_ebuild(create_pkgdir, '1')
+    filename = create_ebuild(create_pkgdir, "1")
     assert find_ebuilds_in_dir(create_pkgdir) == [filename]
 
 
@@ -82,10 +68,16 @@ def test_get_short_description(create_pkgdir):
 def test_get_long_description(create_pkgdir):
     metadata = create_pkgdir / "metadata.xml"
     metadata.write_text(test_metadata)
-    assert get_long_description(create_pkgdir) == "Long description line 1.\nLong description line 2."
+    assert (
+        get_long_description(create_pkgdir)
+        == "Long description line 1.\nLong description line 2."
+    )
 
 
 def test_get_upstreams(create_pkgdir):
     metadata = create_pkgdir / "metadata.xml"
     metadata.write_text(test_metadata)
-    assert get_upstreams(create_pkgdir) == [('account/reponame', 'github'), ('somepypi', 'pypi')]
+    assert get_upstreams(create_pkgdir) == [
+        ("account/reponame", "github"),
+        ("somepypi", "pypi"),
+    ]
