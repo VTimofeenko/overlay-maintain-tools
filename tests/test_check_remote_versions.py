@@ -84,10 +84,10 @@ def test_print_version_header(param_combo):
 
 @pytest.mark.parametrize(
     "with_remotes,result",
-    ((True, 1), (False, 0)),
+    ((True, 100), (False, 0)),
     ids=(
-        "Package with remotes - exit code = 0",
-        "Package without remotes - exit code = 1",
+        "Package with remotes - exit code = 100",
+        "Package without remotes - exit code = 0",
     ),
 )
 def test_check_versions_short_circuit(with_remotes, result):

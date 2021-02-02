@@ -5,25 +5,6 @@ import pytest
 
 overlay_dir = Path("/var/db/repos/gentoo")
 test_atom = "sys-apps/portage"
-test_metadata = """<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
-<pkgmetadata>
-<maintainer type="person">
-    <email>someone@example.org</email>
-    <description>Example overlay</description>
-</maintainer>
-    <longdescription lang="en">
-        Long description line 1.
-        
-        Long description line 2.
-    </longdescription>
-    <upstream>
-        <remote-id type="github">account/reponame</remote-id>
-        <remote-id type="pypi">somepypi</remote-id>
-    </upstream>
-<use>
-</use>
-</pkgmetadata>"""
 
 
 def test_get_atomname():
@@ -65,18 +46,14 @@ def test_get_short_description(create_pkgdir):
     assert get_short_description(create_pkgdir) == test_desc
 
 
-def test_get_long_description(create_pkgdir):
-    metadata = create_pkgdir / "metadata.xml"
-    metadata.write_text(test_metadata)
+def test_get_long_description(create_pkgdir, setup_metadata):
     assert (
         get_long_description(create_pkgdir)
         == "Long description line 1.\nLong description line 2."
     )
 
 
-def test_get_upstreams(create_pkgdir):
-    metadata = create_pkgdir / "metadata.xml"
-    metadata.write_text(test_metadata)
+def test_get_upstreams(create_pkgdir, setup_metadata):
     assert get_upstreams(create_pkgdir) == [
         ("account/reponame", "github"),
         ("somepypi", "pypi"),

@@ -18,7 +18,7 @@ def print_all_package_remotes(pkg: Package) -> str:
     if len(pkg.remotes) > 0:
         return "\n".join(tuple(map(print_one_package_remote, pkg.remotes)))
     else:
-        return "No remotes specified."
+        return "No remotes specified. Consider adding them in metadata.xml"
 
 
 def print_version_header(
@@ -61,8 +61,8 @@ def print_package(
 def check_versions_short_circuit(
     pkgs_with_versions: Dict[Package, Tuple[Tuple[Remote, str], ...]]
 ) -> Exit:
-    """Checks if there are any non-empty remotes, and returns True"""
+    """Checks if there are any non-empty remotes, and returns the exit code status"""
     if any(map(lambda _: len(_) > 0, pkgs_with_versions.values())):
-        return Exit(1)
+        return Exit(100)
     else:
         return Exit(0)

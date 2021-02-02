@@ -19,7 +19,6 @@ from overlay_maintain_tools.check_remote_versions import (
 
 __version__ = "1.0"
 app = typer.Typer()
-state = State()
 
 
 def version_callback(value: bool):
@@ -30,6 +29,7 @@ def version_callback(value: bool):
 
 @app.command()
 def mkreadme(
+    ctx: typer.Context,
     skeleton_file: Path = typer.Option(
         default="readme.skel.jinja2",
         help="The file containing README template. Should be inside the template directory.",
@@ -43,40 +43,45 @@ def mkreadme(
     ),
     readme: Optional[Path] = typer.Option(
         None,
-        "--readme-output",
+        "--output",
         help="Where to save the resulting README. If not supplied - print to stdout.",
     ),
 ):
+    """Generates a README for an overlay using a template. The generated README can utilize data on packages
+    available in the overlay and their versions. For sample template, see the documentation."""
     template = setup_template(
         skeleton_template_name=str(skeleton_file), search_path=str(template_dir)
     )
-    text = render_template(packages_stash=state.pkg_cache, template=template)
-    if readme.is_file():
-        readme.write_text(text)
+    text = render_template(packages_stash=ctx.obj.pkg_cache, template=template)
+    if readme is None:
+        typer.echo(text)
     else:
-        print_stdout(text)
+        readme.write_text(text)
 
 
 @app.command()
 def check_remote_versions(
+    ctx: typer.Context,
     show_updates_only: Optional[bool] = typer.Option(
         False,
         help="Shows only packages that have updates with links to remotes_with_new_versions.",
     ),
     background: Optional[bool] = typer.Option(
         False,
-        help="Suppress output completely. Exit code = 1 denotes that there are updates in remotes_with_new_versions",
+        help="Suppress output of this subcommand completely. Exit code = 100 denotes that there are updates in remotes",
     ),
     color: Optional[bool] = typer.Option(True, help="Enable/disable color in output"),
 ):
+    """Prints a report on the packages in the overlay and their versions available upstream.
+    Pulls the data from remotes specified inside <upstream> tag in metadata.xml"""
     pkgs_with_versions = process_pkgs(
-        packages_stash=state.pkg_cache, worker_count=state.worker_count
+        packages_stash=ctx.obj.pkg_cache, worker_count=ctx.obj.worker_count
     )
     if background:
-        raise typer.Exit(check_versions_short_circuit(pkgs_with_versions))
+        raise check_versions_short_circuit(pkgs_with_versions)
 
     for pkg, remote_versions in pkgs_with_versions.items():
-        print_func = print_stdout
+        print_func = ctx.obj.print_stdout
         if show_updates_only and len(remote_versions) == 0:
             print_func = no_write
 
@@ -106,10 +111,13 @@ def main(
     ),
     quiet: Optional[bool] = typer.Option(False, "--quiet", help="Suppresses output."),
 ):
+    state = State()
+    ctx.obj = state
     if overlay_dir != ".":
         state.overlay_dir = Path(overlay_dir).absolute()
 
-    state.quiet = quiet
+    state.quiet = quiet or (ctx.invoked_subcommand == "mkreadme")
+
     state.print_stdout("Starting overlay-maintain-tools CLI")
 
     state.print_stdout(f"Building package cache from {str(overlay_dir)}.")
@@ -121,4 +129,4 @@ def main(
 
 
 if __name__ == "__main__":
-    app()
+    app()  # pragma: no cover
