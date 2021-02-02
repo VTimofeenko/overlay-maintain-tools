@@ -33,7 +33,7 @@ def print_package(
         pkg_postfix = no_new_version
         remotes_output = ""
 
-    existing_versions_string = f"Versions on overlay: {', '.join(pkg.versions)}"
+    existing_versions_string = f"Versions in overlay: {', '.join(pkg.versions)}"
 
     return f"""{pkg_name}: {pkg_postfix}{remotes_output}
 {existing_versions_string}"""
