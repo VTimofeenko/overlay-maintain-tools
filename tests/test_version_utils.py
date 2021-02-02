@@ -213,6 +213,12 @@ def test_process_pkgs(local_versions, remote_versions, result, monkeypatch):
             self.versions = versions
             self.remotes = remotes
 
+        def __hash__(self):
+            return hash(self.atomname)
+
+        def __eq__(self, other):
+            return hash(self) == hash(other)
+
     pkg_stash = [
         Package(_, local_versions[_], remote_versions[_]) for _ in local_versions.keys()
     ]

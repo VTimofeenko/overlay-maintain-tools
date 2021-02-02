@@ -3,7 +3,6 @@ from typing import Tuple, Callable
 
 from overlay_maintain_tools.main_helpers import no_write
 from overlay_maintain_tools.pkgs_cache import Package, Remote
-from overlay_maintain_tools.main import print_stdout
 
 
 def print_remote(tup: Tuple[Remote, str]):

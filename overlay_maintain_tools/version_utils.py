@@ -82,14 +82,14 @@ def compare_local_remote_versions(
 
 def process_pkgs(
     packages_stash: List[Package], worker_count: int = 8
-) -> Dict[str, Tuple[Tuple[Remote, str], ...]]:
+) -> Dict[Package, Tuple[Tuple[Remote, str], ...]]:
     """Processes a list of packages and returns a list of remotes where the version is greater than the one in
     overlay"""
     result = dict()
     for pkg in packages_stash:
         result.update(
             {
-                pkg.atomname: compose(tuple, compare_local_remote_versions)(
+                pkg: compose(tuple, compare_local_remote_versions)(
                     pkg.versions, pkg.remotes, worker_count
                 )
             }
