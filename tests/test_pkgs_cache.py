@@ -58,3 +58,17 @@ def test_remote_link():
     r = pc.Remote("something else", "typer")
     with pytest.raises(NotImplementedError):
         r.remote_link()
+
+
+def test_package(tmp_path):
+    p = pc.Package(
+        directory=tmp_path,
+        atomname="app-misc/someatomname",
+        versions=["1"],
+        remotes=[],
+        description="short desc",
+        longdescription="some long desc",
+    )
+
+    # Just check that it exists
+    assert hash(p)

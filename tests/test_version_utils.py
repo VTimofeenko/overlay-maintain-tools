@@ -31,6 +31,19 @@ class MockPyPiResponse:
             self.raise_for_status = self._raise
 
 
+class Package:
+    def __init__(self, atomname, versions, remotes):
+        self.atomname = atomname
+        self.versions = versions
+        self.remotes = remotes
+
+    def __hash__(self):
+        return hash(self.atomname)
+
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+
 @pytest.fixture(scope="function")
 def monkeypatch_github_response(monkeypatch):
     def f(target, version):
@@ -140,11 +153,17 @@ def test_process_remotes_list(target, version, monkeypatch_github_response):
             ),
             (),
         ),
+        (
+            ("9999",),
+            ((Remote("github", "user/some-package"), "1"),),
+            ((Remote("github", "user/some-package"), "1"),),
+        ),
     ),
     ids=(
         "Version 1 available in github, higher than the ones in overlay",
         "Version 1 available in both github and pypi, higher than the ones in overlay",
         "The latest version from both github and pypi are available in overlay",
+        "Package only available as a live version, a version is available in remote",
     ),
 )
 def test_compare_local_remote_versions(local_versions, remotes, result, monkeypatch):
@@ -207,20 +226,21 @@ def test_process_pkgs(local_versions, remote_versions, result, monkeypatch):
 
     monkeypatch.setattr(vu, "compare_local_remote_versions", _compare)
 
-    class Package:
-        def __init__(self, atomname, versions, remotes):
-            self.atomname = atomname
-            self.versions = versions
-            self.remotes = remotes
-
-        def __hash__(self):
-            return hash(self.atomname)
-
-        def __eq__(self, other):
-            return hash(self) == hash(other)
-
     pkg_stash = [
         Package(_, local_versions[_], remote_versions[_]) for _ in local_versions.keys()
     ]
 
     assert vu.process_pkgs(pkg_stash) == result
+
+
+def test_process_pkgs_handles_errors(monkeypatch, capsys):
+    # Test that exception is raised and package name is shown
+    # noinspection PyUnusedLocal
+    def _raise(*args, **kwargs):
+        raise Exception
+
+    monkeypatch.setattr(vu, "compare_local_remote_versions", _raise)
+    with pytest.raises(Exception):
+        vu.process_pkgs([Package("package_name", ("1",), ())])
+    out, err = capsys.readouterr()
+    assert "package_name" in out

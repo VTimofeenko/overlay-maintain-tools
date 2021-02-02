@@ -34,6 +34,9 @@ class Package:
     description: str  # short description from ebuild file
     longdescription: str  # corresponds to longdescription from metadata.xml
 
+    def __hash__(self):
+        return hash(self.atomname)
+
 
 def process_directory(directory: Path):
     if contains_ebuild_files(directory):

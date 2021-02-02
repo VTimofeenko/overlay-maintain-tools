@@ -71,7 +71,9 @@ def compare_local_remote_versions(
     local_versions: Tuple[str, ...], remotes: Tuple[Remote, ...], worker_count: int
 ) -> Tuple[Tuple[Remote, str]]:
     """Returns the list of remotes with versions greater than the maximum local one"""
-    max_version_local = max(set(filter(complement(_is_live_version), local_versions)))
+    max_version_local = max(
+        set(filter(complement(_is_live_version), local_versions)), default=""
+    )
     return tuple(
         filter(
             lambda _: _[1] > max_version_local,
@@ -87,11 +89,18 @@ def process_pkgs(
     overlay"""
     result = dict()
     for pkg in packages_stash:
-        result.update(
-            {
-                pkg: compose(tuple, compare_local_remote_versions)(
-                    pkg.versions, pkg.remotes, worker_count
-                )
-            }
-        )
+        try:
+            result.update(
+                {
+                    pkg: compose(tuple, compare_local_remote_versions)(
+                        pkg.versions, pkg.remotes, worker_count
+                    )
+                }
+            )
+        except Exception as e:
+            print(
+                f"Could not process package '{pkg.atomname}', caught exception. This may be a bug.",
+            )
+            raise e
+
     return result

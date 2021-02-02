@@ -9,6 +9,7 @@ from overlay_maintain_tools.pkgs_cache import Package
 class State:
     overlay_dir: Path = Path.cwd()
     pkg_cache: List[Package] = field(default_factory=list)
+    worker_count: int = 8
 
 
 # noinspection PyUnusedLocal
