@@ -61,7 +61,7 @@ def get_latest_version_from_remote(r: Remote) -> str:
 def process_remotes_list(
     remotes: Tuple[Remote, ...], worker_count: int
 ) -> Tuple[Tuple[Remote, str], ...]:
-    """Retrieves the versions from remotes"""
+    """Retrieves the versions from remotes_with_new_versions"""
     p = Pool(worker_count)
     remote_versions = p.map(get_latest_version_from_remote, remotes)
     return tuple(zip(remotes, remote_versions))
@@ -70,7 +70,7 @@ def process_remotes_list(
 def compare_local_remote_versions(
     local_versions: Tuple[str, ...], remotes: Tuple[Remote, ...], worker_count: int
 ) -> Tuple[Tuple[Remote, str]]:
-    """Returns the list of remotes with versions greater than the maximum local one"""
+    """Returns the list of remotes_with_new_versions with versions greater than the maximum local one"""
     max_version_local = max(
         set(filter(complement(_is_live_version), local_versions)), default=""
     )
@@ -85,7 +85,7 @@ def compare_local_remote_versions(
 def process_pkgs(
     packages_stash: List[Package], worker_count: int = 8
 ) -> Dict[Package, Tuple[Tuple[Remote, str], ...]]:
-    """Processes a list of packages and returns a list of remotes where the version is greater than the one in
+    """Processes a list of packages and returns a list of remotes_with_new_versions where the version is greater than the one in
     overlay"""
     result = dict()
     for pkg in packages_stash:
