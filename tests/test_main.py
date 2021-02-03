@@ -72,9 +72,14 @@ def test_check_remote_versions(setup_overlay, monkeypatch, param_combo):
 
 
 @pytest.mark.parametrize(
+    "template_dir_supplied",
+    (True, False),
+    ids=lambda _: f"Template dir was supplied: {_}",
+)
+@pytest.mark.parametrize(
     "to_stdout", (True, False), ids=lambda _: f"Print result to stdout: {_}"
 )
-def test_mkreadme(tmp_path, setup_overlay, to_stdout):
+def test_mkreadme(tmp_path, setup_overlay, to_stdout, template_dir_supplied):
     output_path = tmp_path / "output"
     overlay_dir = setup_overlay
     template_dir = tmp_path / "docs"
@@ -90,9 +95,12 @@ def test_mkreadme(tmp_path, setup_overlay, to_stdout):
             "mkreadme",
             "--skeleton-file",
             skeleton_file,
+        ]
+        + [
             "--template-dir",
             template_dir,
         ]
+        * template_dir_supplied
         + ["--output", output_path] * (not to_stdout),
     )
 

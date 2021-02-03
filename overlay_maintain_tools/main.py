@@ -31,12 +31,12 @@ def version_callback(value: bool):
 def mkreadme(
     ctx: typer.Context,
     skeleton_file: Path = typer.Option(
-        default="readme.skel.jinja2",
+        None,
         help="The file containing README template. Should be inside the template directory.",
     ),
-    template_dir: Path = typer.Option(
-        default=".dev/docs",
-        help="Template directory. Required by Jinja loader.",
+    template_dir: Optional[Path] = typer.Option(
+        None,
+        help="Template directory. Can be specified if more complex jinja2 templates will be used.",
         file_okay=False,
         dir_okay=True,
         exists=True,
@@ -49,9 +49,7 @@ def mkreadme(
 ):
     """Generates a README for an overlay using a template. The generated README can utilize data on packages
     available in the overlay and their versions. For sample template, see the documentation."""
-    template = setup_template(
-        skeleton_template_name=str(skeleton_file), search_path=str(template_dir)
-    )
+    template = setup_template(skeleton_template=skeleton_file, search_path=template_dir)
     text = render_template(packages_stash=ctx.obj.pkg_cache, template=template)
     if readme is None:
         typer.echo(text)
@@ -64,13 +62,20 @@ def check_remote_versions(
     ctx: typer.Context,
     show_updates_only: Optional[bool] = typer.Option(
         False,
+        "--show-updates-only",
         help="Shows only packages that have updates with links to remotes_with_new_versions.",
+        show_default=False,
     ),
     background: Optional[bool] = typer.Option(
         False,
+        "--background",
         help="Suppress output of this subcommand completely. Exit code = 100 denotes that there are updates in remotes",
+        show_default=False,
+        show_choices=False,
     ),
-    color: Optional[bool] = typer.Option(True, help="Enable/disable color in output"),
+    color: Optional[bool] = typer.Option(
+        True, "--color", help="Enable/disable color in output", show_default=False
+    ),
 ):
     """Prints a report on the packages in the overlay and their versions available upstream.
     Pulls the data from remotes specified inside <upstream> tag in metadata.xml"""
