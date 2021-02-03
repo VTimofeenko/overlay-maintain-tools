@@ -96,6 +96,7 @@ def test_check_versions_short_circuit(with_remotes, result):
     else:
         remotes = ()
 
+    # noinspection PyTypeChecker
     output = crv.check_versions_short_circuit({"pkg": remotes})
     assert isinstance(output, Exit)
     assert output.exit_code == result

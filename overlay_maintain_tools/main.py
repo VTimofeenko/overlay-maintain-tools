@@ -17,7 +17,7 @@ from overlay_maintain_tools.check_remote_versions import (
     check_versions_short_circuit,
 )
 
-__version__ = "1.0"
+__version__ = "1.0.0"
 app = typer.Typer()
 
 
@@ -116,6 +116,7 @@ def main(
     ),
     quiet: Optional[bool] = typer.Option(False, "--quiet", help="Suppresses output."),
 ):
+    """Provides certain tools to be run on the overlay directory. See individual commands help for details."""
     state = State()
     ctx.obj = state
     if overlay_dir != ".":

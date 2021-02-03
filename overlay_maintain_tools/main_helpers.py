@@ -16,7 +16,7 @@ class State:
 
     @property
     def print_stdout(self) -> Callable:
-        "Prints something if quiet is not set"
+        """Prints something if quiet is not set"""
         if self.quiet:
             # noinspection PyUnusedLocal
             def _quiet_func(*args, **kwargs):
