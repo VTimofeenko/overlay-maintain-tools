@@ -1,0 +1,7 @@
+#compdef overlay_maintain_tools
+
+_overlay_maintain_tools_completion() {
+  eval $(env _TYPER_COMPLETE_ARGS="${words[1,$CURRENT]}" _OVERLAY_MAINTAIN_TOOLS_COMPLETE=complete_zsh overlay_maintain_tools)
+}
+
+compdef _overlay_maintain_tools_completion overlay_maintain_tools
