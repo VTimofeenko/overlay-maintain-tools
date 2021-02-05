@@ -1,0 +1,10 @@
+_overlay_maintain_tools_completion() {
+    local IFS=$'
+'
+    COMPREPLY=( $( env COMP_WORDS="${COMP_WORDS[*]}" \
+                   COMP_CWORD=$COMP_CWORD \
+                   _OVERLAY_MAINTAIN_TOOLS_COMPLETE=complete_bash $1 ) )
+    return 0
+}
+
+complete -o default -F _overlay_maintain_tools_completion overlay_maintain_tools

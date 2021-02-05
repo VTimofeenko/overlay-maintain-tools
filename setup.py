@@ -1,12 +1,13 @@
 from setuptools import setup, find_packages
 from pathlib import Path
+from glob import glob
 
 here = Path(__file__).parent.resolve()
 github_url = "https://github.com/VTimofeenko/overlay-maintain-tools"
 
 setup(
     name="overlay_maintain_tools",
-    version="1.0.0",
+    version="1.0.0-r0",
     description="A set of utilities to maintain Gentoo overlay",
     long_description=(here / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
@@ -29,6 +30,14 @@ setup(
         "portage",
     ],
     python_requires=">=3.8, <4",
+    # package_data={"overlay_maintain_tools": glob("data/*")},
+    package_data={
+        "overlay_maintain_tools": (
+            "data/sample_readme.skel.jinja2",
+            "data/_overlay_maintain_tools.zsh_completion",
+            "data/_overlay_maintain_tools.bash_completion",
+        )
+    },
     tests_require=[
         "pytest",
         "pytest-cov",
