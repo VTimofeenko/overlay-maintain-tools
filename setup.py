@@ -7,7 +7,7 @@ github_url = "https://github.com/VTimofeenko/overlay-maintain-tools"
 
 setup(
     name="overlay_maintain_tools",
-    version="1.0.0-r1",
+    version="1.0.0-r2",
     description="A set of utilities to maintain Gentoo overlay",
     long_description=(here / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
@@ -15,7 +15,7 @@ setup(
     license="GPL",
     author="Vladimir Timofeenko",
     author_email="overlay.tools.maintain@vtimofeenko.com",
-    include_package_data=True,
+    # include_package_data=True,
     packages=find_packages(exclude=("tests", "docs")),
     package_dir={"overlay_maintain_tools": "overlay_maintain_tools"},
     entry_points={
