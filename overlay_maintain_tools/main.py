@@ -47,7 +47,7 @@ def mkreadme(
         help="Where to save the resulting README. If not supplied - print to stdout.",
     ),
 ):
-    """Generates a README for an overlay using a template. The generated README can utilize data on packages
+    """Creates a README for an overlay. The generated README can utilize data on packages
     available in the overlay and their versions. For sample template, see the documentation."""
     template = setup_template(skeleton_template=skeleton_file, search_path=template_dir)
     text = render_template(packages_stash=ctx.obj.pkg_cache, template=template)
@@ -77,7 +77,7 @@ def check_remote_versions(
         True, "--color", help="Enable/disable color in output", show_default=False
     ),
 ):
-    """Prints a report on the packages in the overlay and their versions available upstream.
+    """Prints report on the versions of packages. Checks versions available upstream.
     Pulls the data from remotes specified inside <upstream> tag in metadata.xml"""
     pkgs_with_versions = process_pkgs(
         packages_stash=ctx.obj.pkg_cache, worker_count=ctx.obj.worker_count

@@ -1,5 +1,7 @@
 # Description
 
+Provides certain tools to be run on the overlay directory. See individual commands help for details.
+
 This is a small collection of tools to help automate some tasks related to Gentoo overlay maintenance.
 
 It can:
@@ -26,7 +28,7 @@ $ eselect repository enable nitratesky && emerge -a1 TODO
 ## Sample usage
 
 The overlay directory is at `/srv/overlay`. To generate a README with the badges, create a skeleton template
-(like the one in repo) and run:
+(like [the one in repo](https://raw.githubusercontent.com/VTimofeenko/overlay-maintain-tools/master/docs/templates/skeleton.jinja2)) and run:
 
 ```
 $ overlay_maintain_tools --overlay-dir /srv/overlay mkreadme --skeleton-file /path/to/readme.template
@@ -61,13 +63,13 @@ These options can be specified for any `COMMAND` except for  `create-config` whi
 
 **Commands**:
 
-* `check-remote-versions`: Prints a report on the packages in the...
-* `mkreadme`: Generates a README for an overlay using a...
+* `check-remote-versions`: Prints report on the versions of packages.
+* `mkreadme`: Creates a README for an overlay.
 
 # Commands
 ## `overlay_maintain_tools mkreadme`
 
-Generates a README for an overlay using a template. The generated README can utilize data on packages
+Creates a README for an overlay. The generated README can utilize data on packages
 available in the overlay and their versions. For sample template, see the documentation.
 
 **Usage**:
@@ -85,7 +87,7 @@ $ overlay_maintain_tools mkreadme [OPTIONS]
 
 ## `overlay_maintain_tools check-remote-versions`
 
-Prints a report on the packages in the overlay and their versions available upstream.
+Prints report on the versions of packages. Checks versions available upstream.
 Pulls the data from remotes specified inside <upstream> tag in metadata.xml
 
 **Usage**:
