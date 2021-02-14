@@ -16,13 +16,13 @@ It can:
 Install the project from PyPI:
 
 ```console
-$ pip install --user TODO
+$ pip install --user overlay-maintain-tools
 ```
 
 Or from nitratesky overlay:
 
 ```console
-$ eselect repository enable nitratesky && emerge -a1 TODO
+$ eselect repository enable nitratesky && emerge -a1 app-portage/overlay-maintain-tools
 ```
 
 ## Sample usage
