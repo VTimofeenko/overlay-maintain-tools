@@ -124,7 +124,7 @@ def test_mkreadme(tmp_path, setup_overlay, to_stdout, template_dir_supplied):
     tuple(product((True, False), (True, False))),
     ids=lambda tup: f"New version in repology: {tup[0]}{', --quiet' * tup[1]}",
 )
-def test_remote_versions(setup_overlay, setup_repology_cache, monkeypatch, param_combo):
+def test_check_repology(setup_overlay, setup_repology_cache, monkeypatch, param_combo):
     import overlay_maintain_tools.repology.main as om
 
     newer_version_in_repology, quiet = param_combo
@@ -162,3 +162,23 @@ def test_remote_versions(setup_overlay, setup_repology_cache, monkeypatch, param
         assert result.exit_code == 0
         if newer_version_in_repology:
             assert "Newest in repology" in result.stdout
+
+
+def test_check_repology_no_name(setup_overlay, tmp_path, monkeypatch):
+    """Checks that repology check passes if there is no mapping for the package in the repology cache"""
+    repology_cache = tmp_path / "repology_cache"
+    repology_cache.touch()
+    overlay_dir = setup_overlay
+    params = (
+        (
+            "--overlay-dir",
+            str(overlay_dir),
+        )
+        + ("check-repology",)
+        + (
+            "--repology-cache-location",
+            str(repology_cache),
+        )
+    )
+    result = runner.invoke(app, params)
+    assert result.exit_code == 0

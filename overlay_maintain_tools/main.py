@@ -124,12 +124,12 @@ def check_repology(
 
     pkg_cache = ctx.obj.pkg_cache
     for (pkg, reply) in zip(pkg_cache, map(get_higher_versions_in_repology, pkg_cache)):
-        reply_i = tuple(reply)
-        if reply_i:
-            if ctx.obj.quiet:
+        if reply:
+            reply_i = tuple(reply)
+            if reply_i and ctx.obj.quiet:
                 raise typer.Exit(100)
             print_func(
-                f"{pkg.atomname}:\nHave locally: {', '.join(pkg.versions)}\nNewest in repology: {''.join(reply)}"
+                f"{pkg.atomname}:\nHave locally: {', '.join(pkg.versions)}\nNewest in repology: {''.join(reply_i)}"
             )
 
 
