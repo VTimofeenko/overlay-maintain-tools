@@ -7,7 +7,7 @@ github_url = "https://github.com/VTimofeenko/overlay-maintain-tools"
 
 setup(
     name="overlay_maintain_tools",
-    version="1.0.0",
+    version="1.1.0",
     description="A set of utilities to maintain Gentoo overlay",
     long_description=(here / "README.md").read_text(encoding="utf-8"),
     long_description_content_type="text/markdown",
@@ -27,6 +27,7 @@ setup(
         "toolz~=0.11.1",
         "jinja2",
         "portage",
+        "libversion",
     ],
     python_requires=">=3.8, <4",
     # package_data={"overlay_maintain_tools": glob("data/*")},

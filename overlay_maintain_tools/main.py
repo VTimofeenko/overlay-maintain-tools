@@ -17,7 +17,7 @@ from overlay_maintain_tools.check_remote_versions import (
     check_versions_short_circuit,
 )
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 app = typer.Typer()
 
 
@@ -84,9 +84,9 @@ def check_remote_versions(
     )
     if background:
         raise check_versions_short_circuit(pkgs_with_versions)
+    print_func = ctx.obj.print_stdout
 
     for pkg, remote_versions in pkgs_with_versions.items():
-        print_func = ctx.obj.print_stdout
         if show_updates_only and len(remote_versions) == 0:
             print_func = no_write
 
@@ -95,6 +95,42 @@ def check_remote_versions(
                 pkg=pkg, remotes_with_new_versions=remote_versions, color=color
             )
         )
+
+
+@app.command()
+def check_repology(
+    ctx: typer.Context,
+    repology_cache_location: Optional[Path] = typer.Option(
+        None,
+        help="Path to file with the mappings between overlay package and repology project",
+        file_okay=True,
+        dir_okay=True,
+        exists=True,
+    ),
+):
+    """Returns newest versions known to repology."""
+    from overlay_maintain_tools.repology import (
+        get_higher_versions_in_repology,
+        load_repology_cache,
+    )
+
+    print_func = ctx.obj.print_stdout
+    get_higher_versions_in_repology = partial(
+        get_higher_versions_in_repology,
+        repology_cache=load_repology_cache(repology_cache_location),
+    )
+
+    print_func("Repology report.")
+
+    pkg_cache = ctx.obj.pkg_cache
+    for (pkg, reply) in zip(pkg_cache, map(get_higher_versions_in_repology, pkg_cache)):
+        reply_i = tuple(reply)
+        if reply_i:
+            if ctx.obj.quiet:
+                raise typer.Exit(100)
+            print_func(
+                f"{pkg.atomname}:\nHave locally: {', '.join(pkg.versions)}\nNewest in repology: {''.join(reply)}"
+            )
 
 
 # noinspection PyUnusedLocal
@@ -114,7 +150,11 @@ def main(
     worker_count: int = typer.Option(
         8, min=1, help="Number of workers for creating package cache."
     ),
-    quiet: Optional[bool] = typer.Option(False, "--quiet", help="Suppresses output."),
+    quiet: Optional[bool] = typer.Option(
+        False,
+        "--quiet",
+        help="Suppresses output. For commands checking versions exit code 100 means newer versions are available.",
+    ),
 ):
     """Provides certain tools to be run on the overlay directory. See individual commands help for details."""
     state = State()

@@ -244,3 +244,9 @@ def test_process_pkgs_handles_errors(monkeypatch, capsys):
         vu.process_pkgs([Package("package_name", ("1",), ())])
     out, err = capsys.readouterr()
     assert "package_name" in out
+
+
+@pytest.mark.parametrize("versions", [("2-r1", "2"), ("9999", "9999")])
+def test_strip_revision(versions):
+    v, result = versions
+    assert vu.strip_revision(v) == result

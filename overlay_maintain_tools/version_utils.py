@@ -25,6 +25,11 @@ def _is_live_version(version: str) -> bool:
     return bool(live_version.match(version))
 
 
+def strip_revision(version: str) -> str:
+    """Turns 2-r1 > 2, 2 > 2"""
+    return re.sub(r"-r\d+", "", version)
+
+
 def _get_latest_version_from_github(target: str) -> Union[str, None]:
     reply = requests.get(f"https://github.com/{target}/releases/latest")
     reply.raise_for_status()
