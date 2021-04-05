@@ -8,6 +8,7 @@ It can:
 
 * Generate a README like this.
 * Look up a package in remotes and tell if a new version is available.
+* Look up a package on [repology.org](https://repology.org) and show the newest known versions.
 
 # Getting started
 
@@ -40,6 +41,13 @@ To generate a report on packages versions in overlay, make sure that [`metadata.
 $ overlay_maintain_tools --overlay-dir /srv/overlay check-remote-versions
 ```
 
+To look up versions in repology, create a file with mapping between package atoms and project names in repology and specify it when running the script:
+
+```
+$ cat /srv/overlay/repology_cache
+net-news/newsboat newsboat
+$ overlay_maintain_tools --overlay-dir /srv/overlay check-repology --repology-cache-location /srv/overlay/repology_cache
+```
 
 # Details
 
@@ -54,7 +62,7 @@ $ overlay_maintain_tools [OPTIONS] COMMAND [ARGS]...
 * `--version`: Show version and exit.
 * `--overlay-dir PATH`: Specify location for overlay.  [default: .]
 * `--worker-count INTEGER RANGE`: Number of workers for creating package cache.  [default: 8]
-* `--quiet`: Suppresses output.  [default: False]
+* `--quiet`: Suppresses output. For commands checking versions exit code 100 means newer versions are available.  [default: False]
 * `--install-completion`: Install completion for the current shell.
 * `--show-completion`: Show completion for the current shell, to copy it or customize the installation.
 * `--help`: Show this message and exit.
@@ -64,6 +72,7 @@ These options can be specified for any `COMMAND` except for  `create-config` whi
 **Commands**:
 
 * `check-remote-versions`: Prints report on the versions of packages.
+* `check-repology`: Returns newest versions known to repology.
 * `mkreadme`: Creates a README for an overlay.
 
 # Commands
@@ -84,7 +93,6 @@ $ overlay_maintain_tools mkreadme [OPTIONS]
 * `--template-dir DIRECTORY`: Template directory. Can be specified if more complex jinja2 templates will be used.
 * `--output PATH`: Where to save the resulting README. If not supplied - print to stdout.
 * `--help`: Show this message and exit.
-
 ## `overlay_maintain_tools check-remote-versions`
 
 Prints report on the versions of packages. Checks versions available upstream.
@@ -101,6 +109,20 @@ $ overlay_maintain_tools check-remote-versions [OPTIONS]
 * `--show-updates-only`: Shows only packages that have updates with links to remotes_with_new_versions.
 * `--background`: Suppress output of this subcommand completely. Exit code = 100 denotes that there are updates in remotes
 * `--color`: Enable/disable color in output
+* `--help`: Show this message and exit.
+## `overlay_maintain_tools check-repology`
+
+Returns newest versions known to repology.
+
+**Usage**:
+
+```console
+$ overlay_maintain_tools check-repology [OPTIONS]
+```
+
+**Options**:
+
+* `--repology-cache-location PATH`: Path to file with the mappings between overlay package and repology project
 * `--help`: Show this message and exit.
 
 # Contrib directory
