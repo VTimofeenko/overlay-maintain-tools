@@ -43,7 +43,7 @@ def monkeypatch_repology(monkeypatch):
     class MockRepologyResponse:
         def __init__(self, versions):
             self.raise_for_status = lambda: ""
-            self.json = lambda: [{"version": _} for _ in versions]
+            self.json = lambda: [{"version": _, "status": "newest"} for _ in versions]
 
     def f(versions):
         # noinspection PyUnusedLocal

@@ -161,4 +161,4 @@ def test_remote_versions(setup_overlay, setup_repology_cache, monkeypatch, param
     else:
         assert result.exit_code == 0
         if newer_version_in_repology:
-            assert "In repology" in result.stdout
+            assert "Newest in repology" in result.stdout

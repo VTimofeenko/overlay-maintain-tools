@@ -39,7 +39,9 @@ def _get_versions_from_repology_repos(project: str) -> set:
     """Returns set of versions available in other repos of repology"""
     reply = requests.get(f"https://repology.org/api/v1/project/{project}")
     reply.raise_for_status()
-    return set(pluck("version")(reply.json()))
+    return set(
+        pluck("version")(filter(lambda _: _["status"] == "newest", reply.json()))
+    )
 
 
 def get_higher_versions_in_repology(

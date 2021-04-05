@@ -128,7 +128,7 @@ def check_repology(
             if ctx.obj.quiet:
                 raise typer.Exit(100)
             print_func(
-                f"{pkg.atomname}:\nHave locally: {', '.join(pkg.versions)}\nIn repology: {''.join(reply)}"
+                f"{pkg.atomname}:\nHave locally: {', '.join(pkg.versions)}\nNewest in repology: {''.join(reply)}"
             )
 
 
