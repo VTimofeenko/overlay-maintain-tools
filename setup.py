@@ -27,6 +27,7 @@ setup(
         "toolz~=0.11.1",
         "jinja2",
         "portage",
+        "libversion",
     ],
     python_requires=">=3.8, <4",
     # package_data={"overlay_maintain_tools": glob("data/*")},

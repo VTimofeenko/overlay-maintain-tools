@@ -5,7 +5,7 @@ import pytest
 from overlay_maintain_tools.main import app
 from overlay_maintain_tools.main_helpers import State
 
-from tests.utils import create_ebuild
+from tests.utils import create_ebuild, tmp_package
 
 """Main file for testing commands defined in main"""
 
@@ -17,6 +17,13 @@ def setup_overlay(create_pkgdir, setup_metadata):
     ebuild = create_ebuild(create_pkgdir, "1")
     ebuild.write_text("DESCRIPTION='SOME DESC'")
     return create_pkgdir.parent.parent
+
+
+@pytest.fixture(scope="function")
+def setup_repology_cache(tmp_path):
+    cache_file = tmp_path / "repology_cache"
+    cache_file.write_text(f"{tmp_package} repology_pkgname")
+    return cache_file
 
 
 def test_version_callback():
@@ -110,3 +117,48 @@ def test_mkreadme(tmp_path, setup_overlay, to_stdout, template_dir_supplied):
         assert template_content in result.stdout
     else:
         assert template_content in output_path.read_text()
+
+
+@pytest.mark.parametrize(
+    "param_combo",
+    tuple(product((True, False), (True, False))),
+    ids=lambda tup: f"New version in repology: {tup[0]}{', --quiet' * tup[1]}",
+)
+def test_remote_versions(setup_overlay, setup_repology_cache, monkeypatch, param_combo):
+    import overlay_maintain_tools.repology.main as om
+
+    newer_version_in_repology, quiet = param_combo
+
+    # noinspection PyUnusedLocal
+    def repology_func(*args, **kwargs):
+        if newer_version_in_repology:
+            return {"2"}
+        else:
+            return set()
+
+    monkeypatch.setattr(om, "_get_versions_from_repology_repos", repology_func)
+
+    overlay_dir = setup_overlay
+    params = (
+        (
+            "--overlay-dir",
+            str(overlay_dir),
+        )
+        + ("--quiet",) * quiet
+        + ("check-repology",)
+        + (
+            "--repology-cache-location",
+            str(setup_repology_cache),
+        )
+    )
+    result = runner.invoke(app, params)
+
+    if quiet:
+        if newer_version_in_repology:
+            assert result.exit_code == 100
+        else:
+            assert result.exit_code == 0
+    else:
+        assert result.exit_code == 0
+        if newer_version_in_repology:
+            assert "In repology" in result.stdout
