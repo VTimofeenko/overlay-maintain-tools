@@ -108,7 +108,7 @@ def check_repology(
         exists=True,
     ),
 ):
-    """Returns newest versions known to repology."""
+    """Returns versions known to repology. Reported versions will be newer than ones in overlay."""
     from overlay_maintain_tools.repology import (
         get_higher_versions_in_repology,
         load_repology_cache,
@@ -120,7 +120,7 @@ def check_repology(
         repology_cache=load_repology_cache(repology_cache_location),
     )
 
-    print_func("Repology report.")
+    print_func("Repology report:")
 
     pkg_cache = ctx.obj.pkg_cache
     for (pkg, reply) in zip(pkg_cache, map(get_higher_versions_in_repology, pkg_cache)):
@@ -129,7 +129,8 @@ def check_repology(
             if reply_i and ctx.obj.quiet:
                 raise typer.Exit(100)
             print_func(
-                f"{pkg.atomname}:\nHave locally: {', '.join(pkg.versions)}\nNewest in repology: {''.join(reply_i)}"
+                f"{pkg.atomname}:\nHave locally: {', '.join(pkg.versions)}\n"
+                f"Versions in repology greater than ones in overlay: {''.join(reply_i)}"
             )
 
 

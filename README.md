@@ -72,7 +72,7 @@ These options can be specified for any `COMMAND` except for  `create-config` whi
 **Commands**:
 
 * `check-remote-versions`: Prints report on the versions of packages.
-* `check-repology`: Returns newest versions known to repology.
+* `check-repology`: Returns versions known to repology.
 * `mkreadme`: Creates a README for an overlay.
 
 # Commands
@@ -112,7 +112,7 @@ $ overlay_maintain_tools check-remote-versions [OPTIONS]
 * `--help`: Show this message and exit.
 ## `overlay_maintain_tools check-repology`
 
-Returns newest versions known to repology.
+Returns versions known to repology. Reported versions will be newer than ones in overlay.
 
 **Usage**:
 
