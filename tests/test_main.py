@@ -161,7 +161,9 @@ def test_check_repology(setup_overlay, setup_repology_cache, monkeypatch, param_
     else:
         assert result.exit_code == 0
         if newer_version_in_repology:
-            assert "Newest in repology" in result.stdout
+            assert (
+                "Versions in repology greater than ones in overlay: 2" in result.stdout
+            )
 
 
 def test_check_repology_no_name(setup_overlay, tmp_path, monkeypatch):
