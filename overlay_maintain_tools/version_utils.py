@@ -1,4 +1,4 @@
-from typing import List, Union, Tuple, Dict
+from typing import List, Union, Tuple, Dict, Iterable
 from collections.abc import Collection
 import re
 import requests
@@ -64,7 +64,7 @@ def get_latest_version_from_remote(r: Remote) -> str:
 
 
 def process_remotes_list(
-    remotes: Tuple[Remote, ...], worker_count: int
+    remotes: Iterable[Remote], worker_count: int
 ) -> Tuple[Tuple[Remote, str], ...]:
     """Retrieves the versions from remotes_with_new_versions"""
     p = Pool(worker_count)
@@ -73,7 +73,9 @@ def process_remotes_list(
 
 
 def compare_local_remote_versions(
-    local_versions: Tuple[str, ...], remotes: Tuple[Remote, ...], worker_count: int
+    local_versions: Iterable[str],
+    remotes: Iterable[Remote],
+    worker_count: int,
 ) -> Tuple[Tuple[Remote, str]]:
     """Returns the list of remotes_with_new_versions with versions greater than the maximum local one"""
     max_version_local = max(
@@ -87,25 +89,11 @@ def compare_local_remote_versions(
     )
 
 
-def process_pkgs(
-    packages_stash: List[Package], worker_count: int = 8
-) -> Dict[Package, Tuple[Tuple[Remote, str], ...]]:
-    """Processes a list of packages and returns a list of remotes_with_new_versions where the version is greater
-    than the one in overlay"""
-    result = dict()
-    for pkg in packages_stash:
-        try:
-            result.update(
-                {
-                    pkg: compose(tuple, compare_local_remote_versions)(
-                        pkg.versions, pkg.remotes, worker_count
-                    )
-                }
-            )
-        except Exception as e:
-            print(
-                f"Could not process package '{pkg.atomname}', caught exception. This may be a bug.",
-            )
-            raise e
-
-    return result
+def check_pkg_remotes(pkg: Package, worker_count: int = 8):
+    try:
+        return compare_local_remote_versions(pkg.versions, pkg.remotes, worker_count)
+    except Exception as e:
+        print(
+            f"Could not process package '{pkg.atomname}', caught exception. This may be a bug.",
+        )
+        raise e

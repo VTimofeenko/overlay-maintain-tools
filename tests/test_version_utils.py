@@ -184,56 +184,7 @@ def test_compare_local_remote_versions(local_versions, remotes, result, monkeypa
     )
 
 
-@pytest.mark.parametrize(
-    "local_versions,remote_versions,result",
-    (
-        (
-            {"pkg1": ("0.1", "0.2", "9999"), "pkg2": ("1",)},
-            {"pkg1": ((Remote("github", "user/some-package"), "1"),), "pkg2": ()},
-            {"pkg1": ((Remote("github", "user/some-package"), "1"),), "pkg2": ()},
-        ),
-        (
-            {"pkg1": ("1", "9999"), "pkg2": ("1",)},
-            {
-                "pkg1": ((Remote("github", "user/some-package"), "2"),),
-                "pkg2": ((Remote("github", "user/some-package"), "2"),),
-            },
-            {
-                "pkg1": ((Remote("github", "user/some-package"), "2"),),
-                "pkg2": ((Remote("github", "user/some-package"), "2"),),
-            },
-        ),
-        (
-            {"pkg1": ("1", "9999"), "pkg2": ("1",)},
-            {"pkg1": ((Remote("github", "user/some-package"), "1"),), "pkg2": ()},
-            {"pkg1": (), "pkg2": ()},
-        ),
-    ),
-    ids=(
-        "One package has a newer version, other does not",
-        "Both packages have a newer version",
-        "Neither packages have a newer version",
-    ),
-)
-def test_process_pkgs(local_versions, remote_versions, result, monkeypatch):
-    # noinspection PyUnusedLocal
-    def _compare(versions, remotes, count):
-        versions = set(filter(complement(vu._is_live_version), versions))
-        if remotes == () or (max(versions) >= max(pipe(remotes, pluck(1), tuple))):
-            return ()
-        else:
-            return remotes
-
-    monkeypatch.setattr(vu, "compare_local_remote_versions", _compare)
-
-    pkg_stash = [
-        Package(_, local_versions[_], remote_versions[_]) for _ in local_versions.keys()
-    ]
-
-    assert vu.process_pkgs(pkg_stash) == result
-
-
-def test_process_pkgs_handles_errors(monkeypatch, capsys):
+def test_check_pkg_remotes(monkeypatch, capsys):
     # Test that exception is raised and package name is shown
     # noinspection PyUnusedLocal
     def _raise(*args, **kwargs):
@@ -241,7 +192,7 @@ def test_process_pkgs_handles_errors(monkeypatch, capsys):
 
     monkeypatch.setattr(vu, "compare_local_remote_versions", _raise)
     with pytest.raises(Exception):
-        vu.process_pkgs([Package("package_name", ("1",), ())])
+        vu.check_pkg_remotes(Package("package_name", ("1",), ()))
     out, err = capsys.readouterr()
     assert "package_name" in out
 
