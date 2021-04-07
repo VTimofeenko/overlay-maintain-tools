@@ -10,7 +10,7 @@ from functools import partial
 
 from overlay_maintain_tools.mkreadme import setup_template, render_template
 from overlay_maintain_tools.pkgs_cache import build_pkgs_cache
-from overlay_maintain_tools.version_utils import process_pkgs
+from overlay_maintain_tools.version_utils import check_pkg_remotes
 from overlay_maintain_tools.main_helpers import State, no_write
 from overlay_maintain_tools.check_remote_versions import (
     print_package,
@@ -79,14 +79,18 @@ def check_remote_versions(
 ):
     """Prints report on the versions of packages. Checks versions available upstream.
     Pulls the data from remotes specified inside <upstream> tag in metadata.xml"""
-    pkgs_with_versions = process_pkgs(
-        packages_stash=ctx.obj.pkg_cache, worker_count=ctx.obj.worker_count
-    )
+    pkg_cache = ctx.obj.pkg_cache
+    _check_pkg_remotes = partial(check_pkg_remotes, worker_count=ctx.obj.worker_count)
     if background:
-        raise check_versions_short_circuit(pkgs_with_versions)
-    print_func = ctx.obj.print_stdout
+        print_func = no_write
+    else:
+        print_func = ctx.obj.print_stdout
 
-    for pkg, remote_versions in pkgs_with_versions.items():
+    for (pkg, remote_versions) in zip(pkg_cache, map(_check_pkg_remotes, pkg_cache)):
+        # short-circuit if background and remote versions exist
+        if remote_versions and background:
+            raise typer.Exit(100)
+
         if show_updates_only and len(remote_versions) == 0:
             print_func = no_write
 
