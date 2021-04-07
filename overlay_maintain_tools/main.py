@@ -172,8 +172,9 @@ def main(
     state.print_stdout("Starting overlay-maintain-tools CLI")
 
     state.print_stdout(f"Building package cache from {str(overlay_dir)}.")
-    state.pkg_cache = build_pkgs_cache(
-        overlay_dir=overlay_dir, worker_count=worker_count
+    state.pkg_cache = sorted(
+        build_pkgs_cache(overlay_dir=overlay_dir, worker_count=worker_count),
+        key=lambda _: _.atomname,
     )
     state.print_stdout(f"Package cache built.")
     state.worker_count = worker_count

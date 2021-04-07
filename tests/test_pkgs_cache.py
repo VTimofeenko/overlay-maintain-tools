@@ -1,5 +1,6 @@
 import pytest
 from tests.utils import create_ebuild
+from pathlib import Path
 
 import overlay_maintain_tools.pkgs_cache as pc
 
@@ -40,14 +41,25 @@ def test_compact(iterable, result):
     assert list(pc.compact(iterable)) == result
 
 
-def mock_process_directory(_):
+def mock_process_directory(directory: Path):
     """To be used for multiprocessing, requires to be defined on module level"""
-    return "pkg"
+    return f"{directory.parent.name}/{directory.name}"
 
 
 def test_build_pkgs_cache(tmp_path, monkeypatch, create_pkgdir):
     monkeypatch.setattr(pc, "process_directory", mock_process_directory)
-    assert pc.build_pkgs_cache(tmp_path) == ["pkg"]
+    assert pc.build_pkgs_cache(tmp_path / "repo") == ["app-misc/pkgname"]
+
+
+def test_build_pkgs_cache_alphabetical(tmp_path, monkeypatch, create_pkgdir):
+    monkeypatch.setattr(pc, "process_directory", mock_process_directory)
+    (tmp_path / "repo/app-misc/zzz_pkgname").mkdir(parents=True)
+    (tmp_path / "repo/zzz-app/zzz_pkgname").mkdir(parents=True)
+    assert pc.build_pkgs_cache(tmp_path / "repo") == [
+        "app-misc/pkgname",
+        "app-misc/zzz_pkgname",
+        "zzz-app/zzz_pkgname",
+    ]
 
 
 def test_remote_link():
