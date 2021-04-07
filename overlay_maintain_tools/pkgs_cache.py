@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import List, Dict, Tuple
 from dataclasses import dataclass
+from functools import total_ordering
 from multiprocessing import Pool
 from toolz import merge_with, compose, filter
 from sys import stderr
@@ -23,6 +24,7 @@ class Remote:
             raise NotImplementedError(f"Remote {self.type} is not implemented")
 
 
+@total_ordering
 @dataclass
 class Package:
     """Contains parsed information from an atom directory"""
@@ -37,8 +39,11 @@ class Package:
     def __hash__(self):
         return hash(self.atomname)
 
+    def __lt__(self, other):
+        return self.atomname < other.atomname
 
-def process_directory(directory: Path):
+
+def process_directory(directory: Path) -> Package:
     if contains_ebuild_files(directory):
         try:
             return Package(
@@ -68,4 +73,4 @@ def build_pkgs_cache(
 ) -> List[Package]:
     pkg_subdirs = overlay_dir.glob("*/*")
     p = Pool(worker_count)
-    return list(compact(p.map(process_directory, pkg_subdirs)))
+    return sorted(list(compact(p.map(process_directory, pkg_subdirs))))
