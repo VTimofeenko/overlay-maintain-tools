@@ -192,13 +192,32 @@ def test_check_repology_show_updates_only(
 ):
     """Tests that if the first package does not have a new version, the second does -
     the second will be printed with --show-updates-only"""
-    from tests.conftest import test_metadata
 
     overlay_dir = tmp_path / "overlay"
     for pkg_name in ("a_package", "z_package"):
         ebuild_dir = overlay_dir / f"app-misc/{pkg_name}"
         ebuild_dir.mkdir(parents=True)
-        (ebuild_dir / f"{pkg_name}-1.ebuild").touch()
+        ebuild_file = ebuild_dir / f"{pkg_name}-1.ebuild"
+        ebuild_file.touch()
+        ebuild_file.write_text("DESCRIPTION='test'")
+        test_metadata = f"""<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+<maintainer type="person">
+    <email>someone@example.org</email>
+    <description>Example overlay</description>
+</maintainer>
+    <longdescription lang="en">
+        Long description line 1.
+
+        Long description line 2.
+    </longdescription>
+    <upstream>
+        <remote-id type="github">{pkg_name}</remote-id>
+    </upstream>
+<use>
+</use>
+</pkgmetadata>"""
         (ebuild_dir / "metadata.xml").write_text(test_metadata)
 
     def _version_getter(pkgname):

@@ -81,18 +81,16 @@ def check_remote_versions(
     Pulls the data from remotes specified inside <upstream> tag in metadata.xml"""
     pkg_cache = ctx.obj.pkg_cache
     _check_pkg_remotes = partial(check_pkg_remotes, worker_count=ctx.obj.worker_count)
-    if background:
-        print_func = no_write
-    else:
-        print_func = ctx.obj.print_stdout
 
     for (pkg, remote_versions) in zip(pkg_cache, map(_check_pkg_remotes, pkg_cache)):
         # short-circuit if background and remote versions exist
         if remote_versions and background:
             raise typer.Exit(100)
 
-        if show_updates_only and len(remote_versions) == 0:
+        if (show_updates_only and len(remote_versions) == 0) or background:
             print_func = no_write
+        else:
+            print_func = ctx.obj.print_stdout
 
         print_func(
             print_package(
