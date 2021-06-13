@@ -1,5 +1,7 @@
 # Description
 
+[![PyPI version fury.io](https://badge.fury.io/py/overlay-maintain-tools.svg)](https://pypi.python.org/pypi/overlay-maintain-tools/)
+
 Provides certain tools to be run on the overlay directory. See individual commands help for details.
 
 This is a small collection of tools to help automate some tasks related to Gentoo overlay maintenance.
