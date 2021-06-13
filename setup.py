@@ -21,7 +21,7 @@ setup(
         "console_scripts": ["overlay_maintain_tools = overlay_maintain_tools.main:app"]
     },
     install_requires=[
-        "python-dotenv~=0.15.0",
+        "python-dotenv>=0.15.0",
         "requests~=2.25.1",
         "typer~=0.3.2",
         "toolz~=0.11.1",
