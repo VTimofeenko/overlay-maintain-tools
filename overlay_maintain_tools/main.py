@@ -17,7 +17,7 @@ from overlay_maintain_tools.check_remote_versions import (
     check_versions_short_circuit,
 )
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 app = typer.Typer()
 
 
