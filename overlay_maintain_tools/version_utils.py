@@ -7,6 +7,7 @@ from operator import methodcaller, attrgetter
 from toolz import complement, groupby, compose
 from toolz.curried import get, pluck
 from multiprocessing import Pool
+from libversion import version_compare
 
 from overlay_maintain_tools.pkgs_cache import Package, Remote
 
@@ -83,7 +84,8 @@ def compare_local_remote_versions(
     )
     return tuple(
         filter(
-            lambda _: _[1] > max_version_local,
+            lambda remote_version: version_compare(remote_version[1], max_version_local)
+            > 0,
             process_remotes_list(remotes, worker_count=worker_count),
         )
     )

@@ -158,12 +158,21 @@ def test_process_remotes_list(target, version, monkeypatch_github_response):
             ((Remote("github", "user/some-package"), "1"),),
             ((Remote("github", "user/some-package"), "1"),),
         ),
+        (
+            ("1.17.6", "2.3.0", "3.11.0"),
+            (
+                (Remote("github", "user/some-package"), "3.8.0"),
+                (Remote("pypi", "some-package"), "3.11.0"),
+            ),
+            (),
+        ),
     ),
     ids=(
         "Version 1 available in github, higher than the ones in overlay",
         "Version 1 available in both github and pypi, higher than the ones in overlay",
         "The latest version from both github and pypi are available in overlay",
         "Package only available as a live version, a version is available in remote",
+        "One remote has a lower version than the highest local one, the other has the same one",
     ),
 )
 def test_compare_local_remote_versions(local_versions, remotes, result, monkeypatch):
