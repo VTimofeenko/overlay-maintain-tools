@@ -49,3 +49,26 @@ Some line"""
 def test__get_template_path(tmp_path):
     readme_path = tmp_path / "skeleton"
     assert mr._get_template_path(readme_path) == tmp_path
+
+
+@pytest.mark.parametrize(
+    "params",
+    (
+        (["1.0"], "1.0"),
+        (["1.1", "1.0"], "1.0, 1.1"),
+        (["1.1", "1.0-r1"], "1.0, 1.1"),
+        (["1.0", "1.1", "1.1-r1"], "1.0, 1.1"),
+        (["1.0", "1.1", "1.1-r1", "1.1-r2"], "1.0, 1.1"),
+    ),
+    ids=(
+        "Trivial case: one version",
+        "Two versions, originally unordered",
+        "Two versions, unordered, one with revision",
+        "Two version, one has a duplicate with revision",
+        "Two versions, one has two duplicates with revision",
+    ),
+)
+def test__render_versions(params):
+    versions = params[0]
+    result = params[1]
+    assert mr._render_versions(versions) == result
